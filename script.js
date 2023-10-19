@@ -16,7 +16,10 @@ buttons.forEach((button) => {
     });
 
     button.addEventListener('click', (event) => {
-        switch (event.target.innerText) {
+        const buttonText = event.target.innerText;
+        const displayText = display.innerText;
+
+        switch (buttonText) {
 
             case "=":
                 try {
@@ -39,38 +42,47 @@ buttons.forEach((button) => {
                 break;
 
             case '+/-':
-                if (display.innerText.includes('-')) {
-                    display.innerText = display.innerText.replace('-', '');
+                if (displayText.includes('-')) {
+                    display.innerText = displayText.replace('-', '');
                 } else {
-                    display.innerText = '-' + display.innerText;
+                    display.innerText = '-' + displayText;
                 }
                 percentPressed = false;
                 break;
 
             case "%":
                 if (!percentPressed) {
-                    let passedText = display.innerText + "/100";
+                    let passedText = displayText + "/100";
                     display.innerText = eval(passedText);
                     percentPressed = true;
                 }
                 break;
 
             default:
-                if(display.innerText === '0' && event.target.innerText !== ".") {
-                    display.innerText = event.target.innerText;
+                if (displayText === '0' && buttonText !== ".") {
+                    display.innerText = buttonText;
                 } else {
-                    if (display.innerText.length < maxLength) {
-                        display.innerText += event.target.innerText;
+                    if (displayText.length < maxLength) {
+                        // Check if the last character is an operator and replace it
+                        if (isOperator(displayText.charAt(displayText.length - 1)) && isOperator(buttonText)) {
+                            display.innerText = displayText.slice(0, -1) + buttonText;
+                        } else {
+                            display.innerText += buttonText;
+                        }
                     }
                 }
         }
-    })
+    });
 });
+
+function isOperator(char) {
+    return ['+', '-', '*', '/'].includes(char);
+}
 // GET-запрос к API с фактами о числах
 function getAndDisplayFact() {
     const factText = document.getElementById('factText');
     factText.textContent = "Loading...";
-    
+
     const apiUrl = 'https://numbersapi.p.rapidapi.com/random/trivia?min=10&max=20&fragment=true&json=true';
     const apiOptions = {
         method: 'GET',
